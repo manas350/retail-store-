@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ManasMart - Your Ultimate Amazon Clone</title>
+<style>
+  /* Reset */
+  * {margin:0; padding:0; box-sizing:border-box;}
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #fff;
+    transition: background-color 0.3s, color 0.3s;
+    min-height: 100vh;
+    position: relative;
+  }
+  body.light {
+    background-color: #fff;
+    color: #000;
+  }
+  a {color: #ff3b3f; text-decoration:none;}
+  a:hover {text-decoration: underline;}
+  /* Splash screen */
+  #splash {
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: #121212;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction: column;
+    z-index: 10000;
+  }
+  #splash svg {
+    width: 100px;
+    height: 100px;
+    animation: pulse 1.5s infinite;
+    fill: #ff3b3f;
+  }
+  #splash-text {
+    margin-top: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ff3b3f;
+    letter-spacing: 2px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  @keyframes pulse {
+    0%, 100% {opacity: 1;}
+    50% {opacity: 0.5;}
+  }
+  /* Header */
+  header {
+    background-color: #222;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  }
+  body.light header {background-color: #eee; box-shadow:none;}
+  .logo {
+    font-weight: 900;
+    font-size: 1.8rem;
+    color: #ff3b3f;
+    cursor: default;
+    user-select: none;
+  }
+  .search-bar {
+    flex-grow: 1;
+    margin: 0 20px;
+    position: relative;
+  }
+  .search-bar input {
+    width: 100%;
+    padding: 8px 15px;
+    border-radius: 25px;
+    border: none;
+    font-size: 1rem;
+    outline: none;
+    transition: box-shadow 0.3s;
+  }
+  .search-bar input:focus {
+    box-shadow: 0 0 8px #ff3b3f;
+  }
+  .icons-group {
+    display: flex;
+    align-items: center;
+  }
+  .icon-btn {
+    position: relative;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ff3b3f;
+    margin-left: 20px;
+    user-select: none;
+    transition: color 0.3s;
+  }
+  .icon-btn:hover {
+    color: #ffa399;
+  }
+  .badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: #ff3b3f;
+    color: #fff;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    user-select: none;
+  }
+  /* Banner slider */
+  .banner-slider {
+    width: 100%;
+    max-height: 320px;
+    overflow: hidden;
+    position: relative;
+  }
+  .banner-slider img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: none;
+    user-select: none;
+  }
+  .banner-slider img.active {
+    display: block;
+  }
+  /* Featured deals */
+  .deals-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+  .deals-header {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #ff3b3f;
+  }
+  .deals-slider {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    scroll-behavior: smooth;
+    padding-bottom: 10px;
+  }
+  .deal-card {
+    min-width: 250px;
+    background: #1e1e1e;
+    border-radius: 15px;
+    padding: 15px;
+    color: #fff;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.3s;
+  }
+  body.light .deal-card {
+    background: #f1f1f1;
+    color: #000;
+  }
+  .deal-card:hover {
+    background: #ff3b3f;
+    color: #fff;
+  }
+  .deal-img {
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+    margin-bottom: 10px;
+  }
+  .deal-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  .deal-price {
+    color: #ff3b3f;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .countdown-timer {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: rgba(255,255,255,0.2);
+    padding: 5px 8px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    user-select: none;
+  }
+  /* Products grid */
+  .products-container {
+    max-width: 1200px;
+    margin: 20px auto 50px;
+    padding: 0 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+    gap: 20px;
+  }
+  .product-card {
+    background: #1e1e1e;
+    border-radius: 15px;
+    padding: 15px;
+    transition: background-color 0.3s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+  }
+  body.light .product-card {
+    background: #f9f9f9;
+    color: #000;
+  }
+  .product-card:hover {
+    background: #ff3b3f;
+    color: #fff;
+  }
+  .product-image {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    margin-bottom: 12px;
+  }
+  .product-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    flex-grow: 1;
+  }
+  .product-price {
+    color: #ff3b3f;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .product-rating {
+    margin-bottom: 10px;
+    color: gold;
+    font-size: 1.1rem;
+  }
+  .btn {
+    background-color: #ff3b3f;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s;
+    margin-top: auto;
+  }
+  .btn:hover {
+    background-color: #d03234;
+  }
+  /* Floating cart panel */
+  .cart-panel {
+    position: fixed;
+    top: 60px;
+    right: -400px;
+    width: 360px;
+    height: calc(100% - 60px);
+    background-color: #222;
+    box-shadow: -4px 0 15px rgba(0,0,0,0.7);
+    padding: 20px;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+    z-index: 9999;
+    border-radius: 15px 0 0 15px;
+  }
+  body.light .cart-panel {
+    background-color: #fafafa;
+    color: #000;
+  }
+  .cart-panel.open {
+    right: 0;
+  }
+  .cart-panel h2 {
+    margin-bottom: 25px;
+    color: #ff3b3f;
+    user-select: none;
+  }
+  .cart-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  .cart-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-right: 15px;
+    border-radius: 10px;
+  }
+  .cart-item-details {
+    flex-grow: 1;
+  }
+  .cart-item-title {
+    font-weight: 700;
+  }
+  .cart-item-price {
+    color: #ff3b3f;
+  }
+  .cart-item-qty {
+    margin-left: 10px;
+    font-size: 0.9rem;
+  }
+  .close-cart {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #ff3b3f;
+    user-select: none;
+  }
+  /* Chat popup */
+  .chat-popup {
+    position: fixed;
+    bottom: 90px;
+    right: 25px;
+    background: #222;
+    border-radius: 15px;
+    width: 320px;
+    max-width: 90vw;
+    box-shadow: 0 0 15px rgba(0,0,0,0.8);
+    z-index: 10000;
+    display: none;
+    flex-direction: column;
+    user-select: none;
+  }
+  body.light .chat-popup {
+    background: #fafafa;
+    color: #000;
+  }
+  .chat-header {
+    background: #ff3b3f;
+    color: white;
+    padding: 12px 15px;
+    font-weight: 700;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .chat-close {
+    cursor: pointer;
+    font-size: 1.2rem;
+  }
+  .chat-body {
+    flex-grow: 1;
+    padding: 10px 15px;
+    overflow-y: auto;
+    max-height: 200px;
+  }
+  .chat-input-container {
+    padding: 10px 15px;
+    border-top: 1px solid #ff3b3f;
+    display: flex;
+    gap: 10px;
+  }
+  .chat-input {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+  }
+  .chat-send-btn {
+    background: #ff3b3f;
+    border: none;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s;
+  }
+  .chat-send-btn:hover {
+    background: #d03234;
+  }
+  .chat-message {
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .chat-message.user {
+    text-align: right;
+  }
+  .chat-message.seller {
+    text-align: left;
+    font-style: italic;
+    color: #ffb3b6;
+  }
+  /* Profile modal */
+  .profile-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: #222;
+    border-radius: 20px;
+    width: 400px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 11000;
+    box-shadow: 0 0 25px rgba(0,0,0,0.9);
+    transition: transform 0.3s ease;
+  }
+  body.light .profile-modal {
+    background: #fafafa;
+    color: #000;
+  }
+  .profile-modal.open {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .profile-header {
+    background: #ff3b3f;
+    padding: 15px 20px;
+    font-weight: 700;
+    color: white;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .profile-close {
+    cursor: pointer;
+    font-size: 1.5rem;
+  }
+  .profile-tabs {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 1px solid #ff3b3f;
+    user-select: none;
+  }
+  .profile-tab {
+    padding: 10px 0;
+    flex-grow: 1;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 700;
+    color: #ff3b3f;
+    border-bottom: 3px solid transparent;
+    transition: border-bottom 0.3s;
+  }
+  .profile-tab.active {
+    border-bottom: 3px solid #ff3b3f;
+    color: #ff6a6e;
+  }
+  .profile-content {
+    padding: 15px 20px;
+    font-size: 0.95rem;
+  }
+  /* Order list */
+  .order-list {
+    list-style: none;
+  }
+  .order-item {
+    background: #1e1e1e;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 15px;
+    position: relative;
+  }
+  body.light .order-item {
+    background: #eee;
+  }
+  .order-item h4 {
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .order-status {
+    font-weight: 700;
+    color: #ff3b3f;
+    margin-top: 10px;
+  }
+  /* Wishlist list */
+  .wishlist-list {
+    list-style: none;
+    padding: 0;
+  }
+  .wishlist-item {
+    background: #1e1e1e;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  body.light .wishlist-item {
+    background: #eee;
+  }
+  .wishlist-item img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+  .wishlist-item-title {
+    font-weight: 700;
+    flex-grow: 1;
+  }
+  .remove-wishlist-btn {
+    background: #ff3b3f;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .remove-wishlist-btn:hover {
+    background: #d03234;
+  }
+  /* Address */
+  .address-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .address-item {
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 15px;
+  }
+  body.light .address-item {
+    background: #eee;
+    color: #000;
+  }
+  .address-item h4 {
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  /* Settings */
+  .settings-section label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .settings-section input[type="text"],
+  .settings-section input[type="email"],
+  .settings-section input[type="password"] {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 12px;
+    border: none;
+    outline: none;
+    margin-top: 4px;
+  }
+  .settings-save-btn {
+    margin-top: 15px;
+    background: #ff3b3f;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .settings-save-btn:hover {
+    background: #d03234;
+  }
+  /* Order Tracking */
+  .tracking-container {
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .tracking-step {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+  }
+  .tracking-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #444;
+    color: white;
+    font-weight: 700;
+    line-height: 28px;
+  }
+  .tracking-circle.active {
+    background: #ff3b3f;
+  }
+  .tracking-label {
+    flex-grow: 1;
+    text-align: left;
+    font-weight: 700;
+  }
+  /* Footer */
+  footer {
+    background: #222;
+    color: #bbb;
+    padding: 20px;
+    text-align: center;
+    user-select: none;
+  }
+  body.light footer {
+    background: #eee;
+    color: #555;
+  }
+  /* Responsive */
+  @media (max-width: 768px) {
+    header {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .search-bar {
+      margin: 10px 0 0;
+      width: 100%;
+    }
+    .cart-panel {
+      width: 90vw;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Splash Screen -->
+<div id="splash">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="45" stroke="#ff3b3f" stroke-width="10" fill="none" />
+    <path d="M30 50 L45 65 L70 35" stroke="#ff3b3f" stroke-width="8" fill="none" stroke-linecap="round" />
+  </svg>
+  <div id="splash-text">ManasMart</div>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="logo">ManasMart</div>
+  <div class="search-bar">
+    <input type="search" id="searchInput" placeholder="Search products..." autocomplete="off" />
+  </div>
+  <div class="icons-group">
+    <div id="themeToggle" class="icon-btn" title="Toggle Dark/Light Theme">🌙</div>
+    <div id="wishlistBtn" class="icon-btn" title="Wishlist">❤️ <span id="wishlistCount" class="badge">0</span></div>
+    <div id="cartBtn" class="icon-btn" title="Cart">🛒 <span id="cartCount" class="badge">0</span></div>
+    <div id="profileBtn" class="icon-btn" title="Profile">👤</div>
+    <div id="chatBtn" class="icon-btn" title="Chat with Seller">💬</div>
+  </div>
+</header>
+
+<!-- Banner Slider -->
+<div class="banner-slider" id="bannerSlider">
+  <img src="https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=1350&q=80" alt="Banner 1" class="active" />
+  <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1350&q=80" alt="Banner 2" />
+  <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1350&q=80" alt="Banner 3" />
+</div>
+
+<!-- Deals Section -->
+<div class="deals-container">
+  <div class="deals-header">Limited Time Deals</div>
+  <div class="deals-slider" id="dealsSlider">
+    <!-- Deal cards inserted by JS -->
+  </div>
+</div>
+
+<!-- Products Grid -->
+<div class="products-container" id="productsContainer">
+  <!-- Product cards inserted by JS -->
+</div>
+
+<!-- Floating Cart Panel -->
+<div class="cart-panel" id="cartPanel" aria-label="Shopping Cart">
+  <div class="close-cart" id="closeCartBtn" title="Close Cart">&times;</div>
+  <h2>Your Cart</h2>
+  <div id="cartItemsContainer">
+    <!-- Cart items inserted by JS -->
+  </div>
+  <div id="cartSummary" style="margin-top:20px; font-weight:700; font-size:1.1rem; user-select:none;">
+    Total: ₹0
+  </div>
+  <button id="checkoutBtn" class="btn" style="width:100%; margin-top:15px;">Proceed to Checkout</button>
+</div>
+
+<!-- Chat Popup -->
+<div class="chat-popup" id="chatPopup" aria-label="Chat with Seller">
+  <div class="chat-header">
+    Chat with Seller
+    <span class="chat-close" id="chatCloseBtn" title="Close Chat">&times;</span>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-input-container">
+    <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." />
+    <button id="chatSendBtn" class="chat-send-btn">Send</button>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="profile-modal" id="profileModal" aria-label="User Profile">
+  <div class="profile-header">
+    Profile
+    <span class="profile-close" id="profileCloseBtn" title="Close Profile">&times;</span>
+  </div>
+  <div class="profile-tabs">
+    <div class="profile-tab active" data-tab="orders">Orders</div>
+    <div class="profile-tab" data-tab="wishlist">Wishlist</div>
+    <div class="profile-tab" data-tab="address">Address</div>
+    <div class="profile-tab" data-tab="settings">Settings</div>
+  </div>
+  <div class="profile-content" id="profileContent">
+    <!-- Dynamic content inserted here -->
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  &copy; 2025 ManasMart. All rights reserved. | Contact: 8700702736 | Delivery only in Delhi (Delhivery charges included)
+</footer>
+
+<script>
+  // Splash screen hide after load
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('splash').style.display = 'none';
+    }, 2000);
+  });
+
+  // Banner Slider
+  const banners = document.querySelectorAll('#bannerSlider img');
+  let currentBanner = 0;
+  setInterval(() => {
+    banners[currentBanner].classList.remove('active');
+    currentBanner = (currentBanner + 1) % banners.length;
+    banners[currentBanner].classList.add('active');
+  }, 5000);
+
+  // Data
+  const products = [
+    {id:1,title:"Class 9 Books Set",price:500,rating:4.7,img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=500&q=60"},
+    {id:2,title:"Class 8 Books Set",price:450,rating:4.6,img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=500&q=60"},
+    {id:3,title:"Class 7 Books Set",price:400,rating:4.5,img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=500&q=60"},
+    {id:4,title:"Class 6 Books Set",price:350,rating:4.4,img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=500&q=60"},
+    {id:5,title:"Old Toys Set",price:1500,rating:4.9,img:"https://images.unsplash.com/photo-1567016542412-e0809fca3956?auto=format&fit=crop&w=500&q=60"},
+    {id:6,title:"Board Games Pack",price:1200,rating:4.3,img:"https://images.unsplash.com/photo-1589927986089-35812389fcc1?auto=format&fit=crop&w=500&q=60"},
+    {id:7,title:"Study Table Lamp",price:800,rating:4.1,img:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=500&q=60"},
+    {id:8,title:"Math Calculator",price:650,rating:4.5,img:"https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=500&q=60"},
+    {id:9,title:"English Grammar Guide",price:300,rating:4.6,img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=500&q=60"},
+    {id:10,title:"Social Studies Notes",price:280,rating:4.3,img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=500&q=60"},
+    {id:11,title:"Colorful Stationery Set",price:500,rating:4.7,img:"https://images.unsplash.com/photo-1498661360058-29223eac6fcd?auto=format&fit=crop&w=500&q=60"},
+    {id:12,title:"Backpack for School",price:1800,rating:4.8,img:"https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=500&q=60"},
+    {id:13,title:"Desk Organizer",price:700,rating:4.2,img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=500&q=60"},
+    {id:14,title:"Old Puzzle Set",price:1300,rating:4.5,img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=500&q=60"},
+    {id:15,title:"Educational Board Games",price:900,rating:4.4,img:"https://images.unsplash.com/photo-1589927986089-35812389fcc1?auto=format&fit=crop&w=500&q=60"},
+    {id:16,title:"Used Laptop Bag",price:1600,rating:4.3,img:"https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=500&q=60"},
+    {id:17,title:"Used Math Textbooks",price:550,rating:4.6,img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=500&q=60"},
+    {id:18,title:"Old Science Kits",price:800,rating:4.7,img:"https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=500&q=60"},
+    {id:19,title:"Vintage Globe",price:1100,rating:4.4,img:"https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=500&q=60"},
+    {id:20,title:"Old Story Books",price:400,rating:4.6,img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=500&q=60"},
+    {id:21,title:"Used Notebook Set",price:320,rating:4.3,img:"https://images.unsplash.com/photo-1498661360058-29223eac6fcd?auto=format&fit=crop&w=500&q=60"},
+    {id:22,title:"Used Art Supplies",price:750,rating:4.2,img:"https://images.unsplash.com/photo-1498661360058-29223eac6fcd?auto=format&fit=crop&w=500&q=60"},
+    {id:23,title:"Old Toys Car",price:1300,rating:4.6,img:"https://images.unsplash.com/photo-1567016542412-e0809fca3956?auto=format&fit=crop&w=500&q=60"},
+    {id:24,title:"Used English Books",price:450,rating:4.5,img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=500&q=60"},
+    {id:25,title:"School Water Bottle",price:250,rating:4.4,img:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=500&q=60"}
+  ];
+
+  // Deals example with countdown timer (5 mins from page load)
+  const deals = [
+    {id: 5, expiresIn: 300},
+    {id: 6, expiresIn: 600},
+    {id: 23, expiresIn: 900},
+  ];
+
+  // Cart & Wishlist data
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+  // Elements
+  const productsContainer = document.getElementById("productsContainer");
+  const cartBtn = document.getElementById("cartBtn");
+  const cartPanel = document.getElementById("cartPanel");
+  const closeCartBtn = document.getElementById("closeCartBtn");
+  const cartItemsContainer = document.getElementById("cartItemsContainer");
+  const cartCount = document.getElementById("cartCount");
+  const cartSummary = document.getElementById("cartSummary");
+  const checkoutBtn = document.getElementById("checkoutBtn");
+  const wishlistCount = document.getElementById("wishlistCount");
+  const wishlistBtn = document.getElementById("wishlistBtn");
+  const themeToggle = document.getElementById("themeToggle");
+  const searchInput = document.getElementById("searchInput");
+  const dealsSlider = document.getElementById("dealsSlider");
+  const profileBtn = document.getElementById("profileBtn");
+  const profileModal = document.getElementById("profileModal");
+  const profileCloseBtn = document.getElementById("profileCloseBtn");
+  const profileTabs = document.querySelectorAll(".profile-tab");
+  const profileContent = document.getElementById("profileContent");
+  const chatBtn = document.getElementById("chatBtn");
+  const chatPopup = document.getElementById("chatPopup");
+  const chatCloseBtn = document.getElementById("chatCloseBtn");
+  const chatBody = document.getElementById("chatBody");
+  const chatInput = document.getElementById("chatInput");
+  const chatSendBtn = document.getElementById("chatSendBtn");
+
+  // Theme Initialization
+  if(localStorage.getItem("theme") === "light"){
+    document.body.classList.add("light");
+    themeToggle.textContent = "☀️";
+  }
+
+  // Render products
+  function renderProducts(list) {
+    productsContainer.innerHTML = "";
+    list.forEach(product => {
+      const isWishlisted = wishlist.includes(product.id);
+      const productCard = document.createElement("div");
+      productCard.className = "product-card";
+      productCard.innerHTML = `
+        <img class="product-image" src="${product.img}" alt="${product.title}" />
+        <div class="product-title">${product.title}</div>
+        <div class="product-price">₹${product.price}</div>
+        <div class="product-rating">${"★".repeat(Math.round(product.rating))}</div>
+        <button class="btn add-to-cart-btn" data-id="${product.id}">Add to Cart</button>
+        <button class="btn" style="background:#444;margin-top:6px;" onclick="toggleWishlist(${product.id})">${isWishlisted ? "❤️ Remove Wishlist" : "🤍 Add Wishlist"}</button>
+      `;
+      productsContainer.appendChild(productCard);
+    });
+
+    // Add event listeners for add to cart buttons
+    document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const id = +e.target.dataset.id;
+        addToCart(id);
+      });
+    });
+  }
+
+  // Render deals
+  function renderDeals() {
+    dealsSlider.innerHTML = "";
+    deals.forEach(deal => {
+      const product = products.find(p => p.id === deal.id);
+      if(!product) return;
+      const dealCard = document.createElement("div");
+      dealCard.className = "deal-card";
+      dealCard.innerHTML = `
+        <img class="deal-img" src="${product.img}" alt="${product.title}" />
+        <div class="deal-title">${product.title}</div>
+        <div class="deal-price">₹${product.price}</div>
+        <div class="countdown-timer" id="deal-timer-${deal.id}">--:--</div>
+        <button class="btn" onclick="addToCart(${product.id})">Add to Cart</button>
+      `;
+      dealsSlider.appendChild(dealCard);
+      startCountdown(deal.id, deal.expiresIn);
+    });
+  }
+
+  // Countdown for deals
+  function startCountdown(dealId, seconds) {
+    const timerEl = document.getElementById(`deal-timer-${dealId}`);
+    if(!timerEl) return;
+    let timeLeft = seconds;
+    const interval = setInterval(() => {
+      if(timeLeft <= 0){
+        clearInterval(interval);
+        timerEl.textContent = "Expired";
+      } else {
+        let m = Math.floor(timeLeft/60);
+        let s = timeLeft % 60;
+        timerEl.textContent = `${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+        timeLeft--;
+      }
+    }, 1000);
+  }
+
+  // Add to Cart
+  function addToCart(id) {
+    const existing = cart.find(item => item.id === id);
+    if(existing){
+      existing.qty++;
+    } else {
+      cart.push({id, qty:1});
+    }
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Added to cart!");
+    renderCart();
+    updateCartCount();
+  }
+
+  // Remove from Cart
+  function removeFromCart(id) {
+    cart = cart.filter(item => item.id !== id);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
+    updateCartCount();
+  }
+
+  // Update quantity
+  function updateQty(id, qty) {
+    const item = cart.find(i => i.id === id);
+    if(item){
+      item.qty = qty < 1 ? 1 : qty;
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderCart();
+      updateCartCount();
+    }
+  }
+
+  // Render Cart
+  function renderCart() {
+    cartItemsContainer.innerHTML = "";
+    if(cart.length === 0){
+      cartItemsContainer.innerHTML = "<p>Your cart is empty.</p>";
+      cartSummary.textContent = "Total: ₹0";
+      return;
+    }
+    let total = 0;
+    cart.forEach(item => {
+      const product = products.find(p => p.id === item.id);
+      if(!product) return;
+      total += product.price * item.qty;
+      const cartItem = document.createElement("div");
+      cartItem.className = "cart-item";
+      cartItem.innerHTML = `
+        <img src="${product.img}" alt="${product.title}" />
+        <div class="cart-item-details">
+          <div class="cart-item-title">${product.title}</div>
+          <div class="cart-item-price">₹${product.price}</div>
+        </div>
+        <input type="number" min="1" value="${item.qty}" style="width:50px; border-radius:8px; border:none; padding:5px;" aria-label="Quantity for ${product.title}" />
+        <button aria-label="Remove ${product.title} from cart" style="background:#ff3b3f; color:#fff; border:none; border-radius:8px; margin-left:5px; cursor:pointer; font-weight:700;">X</button>
+      `;
+      cartItemsContainer.appendChild(cartItem);
+      // Qty change event
+      cartItem.querySelector("input").addEventListener("change", e => {
+        updateQty(item.id, parseInt(e.target.value));
+      });
+      // Remove button
+      cartItem.querySelector("button").addEventListener("click", () => removeFromCart(item.id));
+    });
+    cartSummary.textContent = `Total: ₹${total}`;
+  }
+
+  // Update cart count badge
+  function updateCartCount() {
+    const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+    cartCount.textContent = totalQty;
+  }
+
+  // Wishlist toggle
+  function toggleWishlist(id) {
+    if(wishlist.includes(id)){
+      wishlist = wishlist.filter(item => item !== id);
+      alert("Removed from wishlist");
+    } else {
+      wishlist.push(id);
+      alert("Added to wishlist");
+    }
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    updateWishlistCount();
+    renderProducts(filteredProducts());
+  }
+
+  // Update wishlist badge
+  function updateWishlistCount() {
+    wishlistCount.textContent = wishlist.length;
+  }
+
+  // Search filter
+  function filteredProducts() {
+    const term = searchInput.value.trim().toLowerCase();
+    if(term === "") return products;
+    return products.filter(p => p.title.toLowerCase().includes(term));
+  }
+
+  // Event Listeners
+  cartBtn.addEventListener("click", () => {
+    cartPanel.classList.toggle("open");
+    renderCart();
+  });
+  closeCartBtn.addEventListener("click", () => cartPanel.classList.remove("open"));
+  wishlistBtn.addEventListener("click", () => {
+    alert("Wishlist feature is in your profile modal. Click on Profile icon 👤 to view.");
+  });
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+    if(document.body.classList.contains("light")){
+      themeToggle.textContent = "☀️";
+      localStorage.setItem("theme","light");
+    } else {
+      themeToggle.textContent = "🌙";
+      localStorage.setItem("theme","dark");
+    }
+  });
+  searchInput.addEventListener("input", () => {
+    renderProducts(filteredProducts());
+  });
+
+  // Profile modal toggle
+  profileBtn.addEventListener("click", () => {
+    profileModal.classList.add("open");
+    renderProfileTab("orders");
+  });
+  profileCloseBtn.addEventListener("click", () => profileModal.classList.remove("open"));
+
+  profileTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      profileTabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      renderProfileTab(tab.dataset.tab);
+    });
+  });
+
+  // Render profile tabs content
+  function renderProfileTab(tab) {
+    if(tab === "orders"){
+      renderOrders();
+    } else if(tab === "wishlist"){
+      renderWishlist();
+    } else if(tab === "address"){
+      renderAddress();
+    } else if(tab === "settings"){
+      renderSettings();
+    }
+  }
+
+  // Orders (static example)
+  function renderOrders() {
+    profileContent.innerHTML = `<ul class="order-list" aria-live="polite">
+      <li class="order-item">
+        <h4>Order #1234</h4>
+        <p>Class 9 Books Set x1</p>
+        <p>Old Toys Set x2</p>
+        <p class="order-status">Status: Delivered</p>
+      </li>
+      <li class="order-item">
+        <h4>Order #1235</h4>
+        <p>Board Games Pack x1</p>
+        <p class="order-status">Status: In Transit</p>
+      </li>
+    </ul>`;
+  }
+
+  // Wishlist list
+  function renderWishlist() {
+    if(wishlist.length === 0) {
+      profileContent.innerHTML = "<p>Your wishlist is empty.</p>";
+      return;
+    }
+    profileContent.innerHTML = `<ul class="wishlist-list" aria-live="polite"></ul>`;
+    const ul = profileContent.querySelector(".wishlist-list");
+    wishlist.forEach(id => {
+      const product = products.find(p => p.id === id);
+      if(!product) return;
+      const li = document.createElement("li");
+      li.className = "wishlist-item";
+      li.innerHTML = `
+        <img src="${product.img}" alt="${product.title}" />
+        <div class="wishlist-item-title">${product.title}</div>
+        <button class="remove-wishlist-btn" aria-label="Remove ${product.title} from wishlist">Remove</button>
+      `;
+      ul.appendChild(li);
+      li.querySelector("button").addEventListener("click", () => {
+        toggleWishlist(id);
+        renderWishlist();
+      });
+    });
+  }
+
+  // Address (static example)
+  function renderAddress() {
+    profileContent.innerHTML = `
+      <div class="address-section" aria-live="polite">
+        <div class="address-item">
+          <h4>Home Address</h4>
+          <p>123, Manas Nagar, Delhi, India</p>
+          <p>Pin: 110001</p>
+          <p>Phone: 8700702736</p>
+        </div>
+      </div>
+    `;
+  }
+
+  // Settings (basic static form)
+  function renderSettings() {
+    profileContent.innerHTML = `
+      <div class="settings-section">
+        <label for="settingsName">Name</label>
+        <input type="text" id="settingsName" placeholder="Your name" value="Manas" />
+        <label for="settingsEmail">Email</label>
+        <input type="email" id="settingsEmail" placeholder="you@example.com" value="manas@example.com" />
+        <label for="settingsPassword">Password</label>
+        <input type="password" id="settingsPassword" placeholder="New password" />
+        <button class="settings-save-btn" id="saveSettingsBtn">Save Settings</button>
+      </div>
+    `;
+    document.getElementById("saveSettingsBtn").addEventListener("click", () => {
+      alert("Settings saved (dummy).");
+    });
+  }
+
+  // Chat popup open/close
+  chatBtn.addEventListener("click", () => {
+    chatPopup.style.display = "flex";
+    chatInput.focus();
+  });
+  chatCloseBtn.addEventListener("click", () => {
+    chatPopup.style.display = "none";
+  });
+
+  // Simple Chat feature (dummy auto-responder)
+  chatSendBtn.addEventListener("click", sendMessage);
+  chatInput.addEventListener("keydown", e => {
+    if(e.key === "Enter") sendMessage();
+  });
+
+  function sendMessage() {
+    const msg = chatInput.value.trim();
+    if(!msg) return;
+    appendChatMessage(msg, "user");
+    chatInput.value = "";
+    // Auto-reply after 1 sec
+    setTimeout(() => {
+      appendChatMessage("Thanks for reaching out! We'll get back to you soon.", "seller");
+    }, 1000);
+  }
+
+  function appendChatMessage(message, sender) {
+    const div = document.createElement("div");
+    div.className = `chat-message ${sender}`;
+    div.textContent = message;
+    chatBody.appendChild(div);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  // Initial rendering
+  renderProducts(products);
+  renderDeals();
+  updateCartCount();
+  updateWishlistCount();
+
+  // Checkout button (simple alert)
+  checkoutBtn.addEventListener("click", () => {
+    if(cart.length === 0){
+      alert("Your cart is empty.");
+      return;
+    }
+    alert("Thank you for your purchase! Delivery only in Delhi, Delhivery charges included.");
+    cart = [];
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
+    updateCartCount();
+    cartPanel.classList.remove("open");
+  });
+
+</script>
+</body>
+</html>
